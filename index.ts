@@ -9,8 +9,17 @@ const server = Bun.serve<{ authToken: string }>({
     },
     websocket: {
       async message(ws, message) {
-        console.log(`Received ${message}`);
-        ws.send(`You said: ${message}`);
+        if (message instanceof Buffer) {
+          ws.send(message);
+          const fileSize = message.length;
+          console.log(`Received file with size: ${fileSize} bytes`);
+        }else if (typeof message === "string") {
+          ws.send(`${message}`);
+          console.log(`Received ${message}`);
+        } else {
+          ws.send(message);
+          console.log(`Received a message of type ${typeof message}`);
+        }
       },
     },
   });
